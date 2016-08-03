@@ -5,7 +5,8 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"os/user"
+	//"os/user"
+	"os"
 )
 
 // AuthStatus represents the Status of an authentication mechanism.
@@ -52,11 +53,14 @@ type Auth interface {
 // bus. Auth must not be called on shared connections.
 func (conn *Conn) Auth(methods []Auth) error {
 	if methods == nil {
-		u, err := user.Current()
-		if err != nil {
-			return err
-		}
-		methods = []Auth{AuthExternal(u.Username), AuthCookieSha1(u.Username, u.HomeDir)}
+		//u, err := user.Current()
+		//if err != nil {
+		//	return err
+		//}
+		//methods = []Auth{AuthExternal(u.Username), AuthCookieSha1(u.Username, u.HomeDir)}
+		user := os.Getenv("USER")
+		home := os.Getenv("HOME")
+		methods = []Auth{AuthExternal(user), AuthCookieSha1(user, home)}
 	}
 	in := bufio.NewReader(conn.transport)
 	err := conn.transport.SendNullByte()
